@@ -35,17 +35,27 @@ void loop()
     
     while(centerSonic > 4)
     {
-      sparki.moveBackward();
+      sparki.moveBackward(1);
       
       centerSonic = ping(CENTER_TRIG, CENTER_ECHO);
       delay(50);
+      rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
+      delay(50);
+      leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
+      delay(50);
+      
       sparki.clearLCD();     
       sparki.print("Mid: "); 
       sparki.print(centerSonic); // tells the distance to the computer
       sparki.println(" cm");
       sparki.updateLCD();
+      
+      Serial1.print("Left: ");
+      Serial1.println(leftSonic);
       Serial1.print("Mid: ");
       Serial1.println(centerSonic);
+      Serial1.print("Right: ");
+      Serial1.println(rightSonic);
     }
   
     sparki.moveStop();
@@ -55,6 +65,7 @@ void loop()
     delay(50);
     leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
     delay(50);
+    
     Serial1.print("Left: ");
     Serial1.println(leftSonic);
     Serial1.print("Right: ");
@@ -100,7 +111,7 @@ void loop()
 }
 
 int ping(int trig, int echo){
-  int attempts = 7;
+  int attempts = 3;
   float distances [attempts];
   for(int i=0; i<attempts; i++){
     distances[i] = ping_single(trig, echo);
