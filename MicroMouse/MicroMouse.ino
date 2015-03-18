@@ -26,29 +26,15 @@ void loop()
     int centerSonic = ping(CENTER_TRIG, CENTER_ECHO);
     int rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
     int leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-    sparki.clearLCD();
-    sparki.print("Mid: "); 
-    sparki.print(centerSonic); // tells the distance to the computer
-    sparki.println(" cm");
-    sparki.updateLCD();
     delay(100); // wait 0.1 seconds (100 milliseconds)
     
     while(centerSonic > 4)
     {
       sparki.moveBackward(1);
-      
+    
       centerSonic = ping(CENTER_TRIG, CENTER_ECHO);
-      delay(50);
       rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-      delay(50);
       leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-      delay(50);
-      
-      sparki.clearLCD();     
-      sparki.print("Mid: "); 
-      sparki.print(centerSonic); // tells the distance to the computer
-      sparki.println(" cm");
-      sparki.updateLCD();
       
       Serial1.print("Left: ");
       Serial1.println(leftSonic);
