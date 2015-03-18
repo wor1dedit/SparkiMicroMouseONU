@@ -18,6 +18,7 @@ void setup()
   pinMode(CENTER_ECHO, INPUT);
   pinMode(LEFT_TRIG,OUTPUT);
   pinMode(LEFT_ECHO, INPUT);
+  Serial1.begin(9600);
 }
 
 void loop()
@@ -43,6 +44,8 @@ void loop()
       sparki.print(centerSonic); // tells the distance to the computer
       sparki.println(" cm");
       sparki.updateLCD();
+      Serial1.print("Mid: ");
+      Serial1.println(centerSonic);
     }
   
     sparki.moveStop();
@@ -52,6 +55,10 @@ void loop()
     delay(50);
     leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
     delay(50);
+    Serial1.print("Left: ");
+    Serial1.println(leftSonic);
+    Serial1.print("Right: ");
+    Serial1.println(rightSonic);
         
     while(true)
     {
