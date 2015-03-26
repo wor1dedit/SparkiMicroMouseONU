@@ -3,6 +3,7 @@
 int ping_single(int trig, int echo);
 int ping(int trig, int echo);
 
+//Ports
 const int RIGHT_TRIG = 16;
 const int RIGHT_ECHO = 19;
 const int CENTER_TRIG = 10;
@@ -12,6 +13,7 @@ const int LEFT_ECHO  = 14;
 
 void setup()
 {
+  //Sets up the Pins
   pinMode(RIGHT_TRIG, OUTPUT);
   pinMode(RIGHT_ECHO, INPUT);
   pinMode(CENTER_TRIG,OUTPUT);
