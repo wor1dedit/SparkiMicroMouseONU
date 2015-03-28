@@ -6,9 +6,6 @@
 DistanceGP2Y0A41SK DistRight;
 DistanceGP2Y0A41SK DistLeft;
 
-int ping_single(int trig, int echo);
-int ping(int trig, int echo);
-
 const int RIGHT_IR_PIN = A8;
 const int LEFT_IR_PIN = A1;
 
@@ -21,7 +18,7 @@ void setup()
   sparki.clearLCD();
   DistRight.begin(RIGHT_IR_PIN);
   DistLeft.begin(LEFT_IR_PIN);
-  Serial1.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop()
@@ -30,27 +27,54 @@ void loop()
     rightDistance = DistRight.getDistanceCentimeter();
     leftDistance = DistLeft.getDistanceCentimeter();
     delay(100); // wait 0.1 seconds (100 milliseconds)
-    
+    /*
+    while(true)
+    {
+          centerDistance = sparki.ping();
+          rightDistance = DistRight.getDistanceCentimeter();
+          leftDistance = DistLeft.getDistanceCentimeter();
+          Serial.print("Left: ");
+          Serial.println(leftDistance);
+          Serial.print("Center: ");
+          Serial.println(centerDistance);
+          Serial.print("Right: ");
+          Serial.println(rightDistance);
+          Serial.println("- - - - - - - - - - -");
+          delay(500);
+    }*/
+
+    sparki.moveBackward();
     while(centerDistance > 4)
+    {
+      rightDistance = DistRight.getDistanceCentimeter();
+      leftDistance = DistLeft.getDistanceCentimeter();
+      
+      if(leftDistance < 4)
+      {
+        sparki.moveRight(1);
+      }
+      if(rightDistance < 4)
+      {
+        sparki.moveLeft(1);
+      }
+      sparki.moveBackward();
+      delay(125);
+    }
+
+    
+    /*while(centerDistance > 4)
     {
       sparki.moveBackward();
       centerDistance = sparki.ping();
       delay(50);
-      Serial1.print("Center: ");
-      Serial1.println(centerDistance);
-    }
+    }*/
   
     sparki.moveStop();
-    sparki.moveBackward(2);
+    sparki.moveBackward(1);
     
     rightDistance = DistRight.getDistanceCentimeter();
     leftDistance = DistLeft.getDistanceCentimeter();
 
-    
-    Serial1.print("Right: ");
-    Serial1.println(rightDistance);
-    Serial1.print("Left: ");
-    Serial1.println(leftDistance);
         
     while(true)
     {
@@ -66,6 +90,20 @@ void loop()
       {
         rightDistance = DistRight.getDistanceCentimeter();
         leftDistance = DistLeft.getDistanceCentimeter();
+      }
+      if(leftDistance < 5 && rightDistance < 5)
+      {
+        rightDistance = DistRight.getDistanceCentimeter();
+        leftDistance = DistLeft.getDistanceCentimeter();
+        if(leftDistance > 5 || rightDistance > 5)
+        {
+          continue;
+        }
+        else
+        {
+          sparki.moveLeft(180);
+          break;
+        }
       }
       else if(leftDistance > rightDistance)
       {
