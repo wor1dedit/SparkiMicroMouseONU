@@ -1,178 +1,82 @@
+//Libraries
 #include <Sparki.h> // include the sparki library
+#include <DistanceGP2Y0A41SK.h>
+
+//Distance Sensors
+DistanceGP2Y0A41SK DistRight;
+DistanceGP2Y0A41SK DistLeft;
 
 int ping_single(int trig, int echo);
 int ping(int trig, int echo);
 
-//Ports
-const int RIGHT_TRIG = 16;
-const int RIGHT_ECHO = 19;
-const int CENTER_TRIG = 10;
-const int CENTER_ECHO = 5;
-const int LEFT_TRIG  = 15;
-const int LEFT_ECHO  = 14;
+const int RIGHT_IR_PIN = A8;
+const int LEFT_IR_PIN = A1;
+
+int rightDistance = 0;
+int leftDistance = 0;
+int centerDistance = 0;
 
 void setup()
 {
-  //Sets up the Pins
-  pinMode(RIGHT_TRIG, OUTPUT);
-  pinMode(RIGHT_ECHO, INPUT);
-  pinMode(CENTER_TRIG,OUTPUT);
-  pinMode(CENTER_ECHO, INPUT);
-  pinMode(LEFT_TRIG,OUTPUT);
-  pinMode(LEFT_ECHO, INPUT);
+  sparki.clearLCD();
+  DistRight.begin(RIGHT_IR_PIN);
+  DistLeft.begin(LEFT_IR_PIN);
   Serial1.begin(9600);
 }
 
 void loop()
 {
-    int centerSonic = ping(CENTER_TRIG, CENTER_ECHO);
-    int rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-    int leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
+    centerDistance = sparki.ping();
+    rightDistance = DistRight.getDistanceCentimeter();
+    leftDistance = DistLeft.getDistanceCentimeter();
     delay(100); // wait 0.1 seconds (100 milliseconds)
     
-    while(centerSonic > 4)
+    while(centerDistance > 4)
     {
-      sparki.moveBackward(1);
-    
-      centerSonic = ping(CENTER_TRIG, CENTER_ECHO);
-      rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-      leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-      
-      Serial1.print("Left: ");
-      Serial1.println(leftSonic);
-      Serial1.print("Mid: ");
-      Serial1.println(centerSonic);
-      Serial1.print("Right: ");
-      Serial1.println(rightSonic);
+      sparki.moveBackward();
+      centerDistance = sparki.ping();
+      delay(50);
+      Serial1.print("Center: ");
+      Serial1.println(centerDistance);
     }
   
     sparki.moveStop();
     sparki.moveBackward(2);
     
-    rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-    delay(50);
-    leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-    delay(50);
+    rightDistance = DistRight.getDistanceCentimeter();
+    leftDistance = DistLeft.getDistanceCentimeter();
+
     
-    Serial1.print("Left: ");
-    Serial1.println(leftSonic);
     Serial1.print("Right: ");
-    Serial1.println(rightSonic);
+    Serial1.println(rightDistance);
+    Serial1.print("Left: ");
+    Serial1.println(leftDistance);
         
     while(true)
     {
-      if(leftSonic == -1)
+      if(leftDistance == -1)
       {
-        leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-        delay(30);
+        leftDistance = DistLeft.getDistanceCentimeter();
       }
-      else if(rightSonic == -1)
+      else if(rightDistance == -1)
       {
-        rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-        delay(50);
+        rightDistance = DistRight.getDistanceCentimeter();
       }
-      else if(leftSonic == rightSonic) 
+      else if(leftDistance == rightDistance) 
       {
-        rightSonic = ping(RIGHT_TRIG, RIGHT_ECHO);
-        delay(50);
-        leftSonic = ping(LEFT_TRIG, LEFT_ECHO);
-        delay(50);
+        rightDistance = DistRight.getDistanceCentimeter();
+        leftDistance = DistLeft.getDistanceCentimeter();
       }
-      else if(leftSonic > rightSonic)
+      else if(leftDistance > rightDistance)
       {
         sparki.moveLeft(90);
-        sparki.clearLCD();     
-        sparki.print("Left"); 
-        sparki.updateLCD();
         break;
       }
       else
       {
         sparki.moveRight(90);
-        sparki.clearLCD(); 
-        sparki.print("Right"); 
-        sparki.updateLCD();
         break;
       }
     }
     sparki.moveStop();
-}
-
-int ping(int trig, int echo){
-  int attempts = 3;
-  float distances [attempts];
-  for(int i=0; i<attempts; i++){
-    distances[i] = ping_single(trig, echo);
-    delay(20);
-  }
-  
-  // sort them in order
-  int i, j;
-  float temp;
- 
-  for (i = (attempts - 1); i > 0; i--)
-  {
-    for (j = 1; j <= i; j++)
-    {
-      if (distances[j-1] > distances[j])
-      {
-        temp = distances[j-1];
-        distances[j-1] = distances[j];
-        distances[j] = temp;
-      }
-    }
-  }
-  
-  // return the middle entry
-  return int(distances[(int)ceil((float)attempts/2.0)]); 
-}
-
-int ping_single(int trig, int echo){
-  long duration; 
-  float cm;
-  digitalWrite(trig, LOW); 
-  delayMicroseconds(2); 
-  digitalWrite(trig, HIGH); 
-  delayMicroseconds(10); 
-  digitalWrite(trig, LOW); 
-  
-
-  uint8_t bit = digitalPinToBitMask(echo);
-  uint8_t port = digitalPinToPort(echo);
-  uint8_t stateMask = (HIGH ? bit : 0);
-  
-  unsigned long startCount = 0;
-  unsigned long endCount = 0;
-  unsigned long width = 0; // keep initialization out of time critical area
-  
-  // convert the timeout from microseconds to a number of times through
-  // the initial loop; it takes 16 clock cycles per iteration.
-  unsigned long numloops = 0;
-  unsigned long maxloops = 5000;
-	
-  // wait for any previous pulse to end
-  while ((*portInputRegister(port) & bit) == stateMask)
-    if (numloops++ == maxloops)
-      return -1;
-	
-  // wait for the pulse to start
-  while ((*portInputRegister(port) & bit) != stateMask)
-    if (numloops++ == maxloops)
-      return -1;
-  
-  startCount = micros();
-  // wait for the pulse to stop
-  while ((*portInputRegister(port) & bit) == stateMask) {
-    if (numloops++ == maxloops)
-      return -1;
-    delayMicroseconds(10); //loop 'jams' without this
-    if((micros() - startCount) > 58000 ){ // 58000 = 1000CM
-      return -1;
-      break;
-    }
-  }
-  duration = micros() - startCount;
-  //--------- end pulsein
-  cm = (float)duration / 29.0 / 2.0; 
-  return int(cm);
 }
