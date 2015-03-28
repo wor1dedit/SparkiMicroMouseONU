@@ -44,7 +44,6 @@ void loop()
     }*/
 
     sparki.moveBackward();
-    while(centerDistance > 4)
     {
       rightDistance = DistRight.getDistanceCentimeter();
       leftDistance = DistLeft.getDistanceCentimeter();
@@ -59,6 +58,7 @@ void loop()
       }
       sparki.moveBackward();
       delay(125);
+      centerDistance = sparki.ping();
     }
 
     
@@ -70,7 +70,6 @@ void loop()
     }*/
   
     sparki.moveStop();
-    sparki.moveBackward(1);
     
     rightDistance = DistRight.getDistanceCentimeter();
     leftDistance = DistLeft.getDistanceCentimeter();
