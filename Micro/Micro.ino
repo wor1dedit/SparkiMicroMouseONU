@@ -22,6 +22,7 @@ void loop()
     leftHandSolver();
 }
 
+//Solves the Maze with the left hand rule
 void leftHandSolver()
 {
   while(true)
